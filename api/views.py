@@ -5,6 +5,9 @@ from .models import Student
 from .serializers import StudentSerializers
 from rest_framework.renderers import JSONRenderer
 from django.http import HttpResponse,JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+
+@csrf_exempt
 def student_api(request):
     if request.method == "GET":
         print("gtfghg")
@@ -29,10 +32,17 @@ def student_api(request):
     if request.method == "POST":
         json_data = request.body
         stream = io.BytesIO(json_data)
+        print("++++++++++++++++",stream)
         pythondata = JSONParser().parse(stream)
         serializer = StudentSerializers(data=pythondata)
         if serializer.is_valid():
             serializer.save()
+            res = {'msg':'data created'}
+            return JsonResponse(res,safe=False)
+        else:
+            return JsonResponse(serializer.errors,safe=False)
+            
+
 
 
 
