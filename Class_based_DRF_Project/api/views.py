@@ -7,14 +7,12 @@ from rest_framework.renderers import JSONRenderer
 from django.http import HttpResponse,JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
-import json
-from django.core import serializers
 
-@csrf_exempt
-
-def student_api(request):
-    if request.method == "GET":
-        print("gtfghg")
+from django.utils.decorators import method_decorator
+from django.views import View
+@method_decorator(csrf_exempt,name='dispatch')
+class StudentAPI(View):
+    def get(self,request,*args, **kwargs):
         json_data = request.body
         print("json data...", json_data)
         stream = io.BytesIO(json_data)
@@ -25,8 +23,6 @@ def student_api(request):
         if id is not None:
             stu = Student.objects.get(id = id)
             serializer = StudentSerializers(stu)
-            # json_data = JSONRenderer().render(serializer.data)
-            # return  HttpResponse(json_data,content_type = 'application/json')
             return JsonResponse(serializer.data,safe=False)
         # except Exception as e:
         #     return HttpResponse(e)
@@ -36,7 +32,7 @@ def student_api(request):
             serializer = StudentSerializers(stu, many=True)
             return JsonResponse(serializer.data,safe=False)
         
-    if request.method == "POST":
+    def post(self,request,*args, **kwargs):
         json_data = request.body
         stream = io.BytesIO(json_data)
         print("++++++++++++++++",stream)
@@ -48,8 +44,8 @@ def student_api(request):
             return JsonResponse(res,safe=False)
         else:
             return JsonResponse(serializer.errors,safe=False)
-        
-    if request.method == "PUT":
+    
+    def put(self,request,*args, **kwargs):
         json_data = request.body
         print("json_data........",json_data)
         stream = io.BytesIO(json_data)
@@ -68,10 +64,7 @@ def student_api(request):
         else:
             return JsonResponse(serializer.errors,safe=False)
         
-
-
-
-    if request.method == 'DELETE':
+    def delete(self,request,*args, **kwargs):
         json_data = request.body
         stream = io.BytesIO(json_data)
         pythondata = JSONParser().parse(stream)
@@ -80,15 +73,9 @@ def student_api(request):
         stu.delete()
         res = {'msg': 'deleted...'}
         return JsonResponse(res,safe=False)
-    else:
-        return JsonResponse(serializer.errors,safe=False)
-
-
+        
 
         
-    
-            
-
 
 
 
